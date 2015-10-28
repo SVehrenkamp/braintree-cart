@@ -1,6 +1,7 @@
 var loopback = require('loopback');
 var boot = require('loopback-boot');
 var config = require('../config/keys'); //Braintree Keys
+var bodyParser = require('body-parser');
 
 var braintree = require('braintree');
 var gateway = braintree.connect({
@@ -24,11 +25,22 @@ app.start = function() {
     }
   });
 };
-
+  
+//Generate Client Token
 app.get("/client-token", function(req, res) {
   gateway.clientToken.generate({}, function(err, response){
     res.send(response.clientToken);
   });
+});
+
+//Recieve Payment Info
+app.post("/checkout", bodyParser(), function (req, res) {
+  var nonce = req.body.payment_method_nonce;
+  // Use payment method nonce here
+  if(nonce === undefined) {
+    res.send({"error":"undefined nonce"});
+  }
+  console.log(nonce);
 });
 
 

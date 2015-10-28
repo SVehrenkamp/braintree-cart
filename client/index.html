@@ -8,21 +8,23 @@
 	<h1>Braintree Exploration</h1>
 	
 	<!--Form-->
-	<form id="checkout" action="/your/server/endpoint" method="post">
+	<form id="checkout">
 	  <input data-braintree-name="number" value="4111111111111111">
 	  <input data-braintree-name="cvv" value="100">
 
-	  <!-- <input data-braintree-name="expiration_date" value="10/20"> -->
+	  <input data-braintree-name="expiration_date" value="10/20">
 
 	  <!-- you can also split expiration date into two fields -->
-	  <input data-braintree-name="expiration_month" value="10">
-	  <input data-braintree-name="expiration_year" value="2020">
+<!-- 	  <input data-braintree-name="expiration_month" value="10">
+	  <input data-braintree-name="expiration_year" value="2020"> -->
 
 	  <input data-braintree-name="postal_code" value="94107">
 	  <input data-braintree-name="cardholder_name" value="John Smith">
 
 	  <input type="submit" id="submit" value="Pay">
 	</form>
+	
+
 	<!--Load Scripts-->
 	<script type="text/javascript" src="/js/vendor/jquery/dist/jquery.min.js"></script>
 	<script type="text/javascript" src="/js/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -30,15 +32,33 @@
 	<script type="text/javascript">
 		//init stuff
 		$(document).ready(function(){
-			var client_token = null;
+			var client;
 			$.ajax({
 				url: "/client-token",
-				type: "GET",
+				method: "GET",
 				success: function(data){
-					client_token = data;
-					braintree.setup(client_token, "custom", {id: "checkout"} );
+					var client_token = data;
+					client = new braintree.api.Client({clientToken: client_token});
 				}
 
+			});
+			$("#submit").on('click', function(e){
+				e.preventDefault();
+				client.tokenizeCard({
+						  number: "4111111111111111",
+						  expirationDate: "10/20"
+						}, function (err, nonce) {
+						  // Send nonce to your server
+						  console.log(nonce);
+						  $.ajax({
+						  	method: "POST",
+						  	url:"/checkout",
+						  	data:{"payment_method_nonce": nonce}
+						  })
+						  .done(function(data){
+						  	console.log(data);
+						  });
+						});
 			});
 		});
 	</script>
