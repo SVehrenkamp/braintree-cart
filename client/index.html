@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Braintree Exploration</title>
+	<link rel="stylesheet" type="text/css" href="/js/vendor/bootstrap/dist/css/bootstrap.css">
+</head>
+<body>
+	<h1>Braintree Exploration</h1>
+	
+	<!--Form-->
+	<form id="checkout" action="/your/server/endpoint" method="post">
+	  <input data-braintree-name="number" value="4111111111111111">
+	  <input data-braintree-name="cvv" value="100">
+
+	  <!-- <input data-braintree-name="expiration_date" value="10/20"> -->
+
+	  <!-- you can also split expiration date into two fields -->
+	  <input data-braintree-name="expiration_month" value="10">
+	  <input data-braintree-name="expiration_year" value="2020">
+
+	  <input data-braintree-name="postal_code" value="94107">
+	  <input data-braintree-name="cardholder_name" value="John Smith">
+
+	  <input type="submit" id="submit" value="Pay">
+	</form>
+	<!--Load Scripts-->
+	<script type="text/javascript" src="/js/vendor/jquery/dist/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/braintree-web/dist/braintree.js"></script>
+	<script type="text/javascript">
+		//init stuff
+		$(document).ready(function(){
+			var client_token = null;
+			$.ajax({
+				url: "/client-token",
+				type: "GET",
+				success: function(data){
+					client_token = data;
+					braintree.setup(client_token, "custom", {id: "checkout"} );
+				}
+
+			});
+		});
+	</script>
+</body>
+</html>
